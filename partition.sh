@@ -124,8 +124,8 @@ partition()
         sync
         sync
         ###format partitions###
-        newpart=$(parted /dev/block/mmcblk0 print | grep -Ev '^(Model:|Disk|Sector size|Partition Table|Number)' |
-                    grep "${androidPartitions[i]}" | awk '{print $1}')
+        # exact name match: plain grep "boot" also hits "aboot" and reformats it
+        newpart=$(parted -m /dev/block/mmcblk0 print | awk -F: -v n="${androidPartitions[i]}" '$6==n{print $1}')
         if [[ "${androidPartitions[i+2]}" == "fat16" ]]; then
         mkfs.fat /dev/block/mmcblk0p${newpart}
         elif [[ "${androidPartitions[i+2]}" == "ext4" ]]; then
