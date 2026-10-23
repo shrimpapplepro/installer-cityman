@@ -1,34 +1,85 @@
-# LK installer.
+# LineageOS 18.1 installer for the Lumia 950 XL (cityman)
 
-A Powershell script to install Developer menu, bootshim and LK onto your Lumia
-## MAKE SURE YOU HAVE PLATFORM TOOLS AND ADB DRIVERS INSTALLED SYSTEM WIDE!
+Turns a Lumia 950 XL running Windows 10 Mobile into a LineageOS 18.1 phone.
+Windows on the phone is erased. Everything that is unique to your phone (IMEI,
+radio calibration, Wi-Fi/Bluetooth addresses) is backed up to your PC first.
 
-## Instructions
--   Unlock your device with WPinternals.
--   Ensure you have all the required base files in the `DATA\` directory (`BCD`, `bootshim.efi`, `Stage2.efi`, `developermenu.efi`, `emmc_appsboot.mbn`, `twrp.img`, `modem.img`). For the LineageOS installation, you must either provide `system.img`, `vendor.img`, and `boot.img` in the `DATA\` directory, OR place a LineageOS flashable zip (e.g., `lineage-18.1-*.zip`) in the script's root directory to use the ADB sideload method.
--   From WPinternals, reboot to mass storage mode (you might want to make a Win32DiskImager backup).
--   Clone this repo.
--   Run `installer.bat` as Administrator.
--   Select option `1` for a Full Install (or choose a specific phase if resuming).
--   When prompted, choose the path to the EFIESP partition (Windows might also have mounted it inside MainOS).
--   Unmount mass storage and reboot the device (keep the power key pressed).
--   The device should output some text then go to a black screen, indicating you are in LK. (Check Device Manager and install [drivers](https://developer.android.com/studio/run/win-usb) if necessary).
--   Follow the on-screen prompts in `installer.bat`—it will automatically handle booting TWRP, repartitioning, backing up partitions, flashing recovery/modem, provisioning Android partitions, and finally flashing LineageOS.
--   Once the script finishes, the device will reboot into Android!
+## You need
 
-## Included Utility Scripts
+- A Windows 10/11 PC (Linux works too, use `installer.sh`) and a USB cable.
+- This installer: **Code → Download ZIP**, then unzip it.
+- The LineageOS zip from the
+  [Releases page](https://github.com/shrimpapplepro/android_device_msft_cityman/releases),
+  for example `lineage-18.1-20261022-UNOFFICIAL-cityman.zip`. Put it **next to
+  `installer.bat`**, not inside a folder. Keep only one LineageOS zip there.
+- [WPinternals](https://github.com/ReneLergner/WPinternals) to unlock the bootloader.
 
-This repository includes several utility scripts to assist with ROM and firmware manipulation:
-- **`unpack_ffu_to_folder.py`**: Extracts and unpacks Lumia FFU firmware files.
-- **`decompress_br.py` & `sdat2img.py`**: Tools for decompressing Android system images (brotli) and converting sparse data files (`.sdat`) into raw image files.
-- **`create_modem_img_70mb.bat`**: Resizes modem images to 70MB to prevent flashing issues.
+## Install
 
-## Recent Updates
-- **Backup Script**: Added `backup_partitions.bat` to create comprehensive backups of all critical partitions before flashing.
-- **LK Updated**: Updated `lk.bin` and `bootshim.efi` to the latest versions.
-- **TWRP Updated**: Updated `twrp.img` to a version that includes `parted` for proper partitioning support.
-- **Installer Improvements**:
-    - **Sideload Fallback**: Added support for ADB sideloading a LineageOS flashable zip if `system.img` and `vendor.img` are not provided.
-    - Improved error handling and increased timeouts for various operations.
-    - Added support for new partition sizes and layout adjustments.
-    - Added `adb wait-for-devices` checks to ensure the device is detected before proceeding.
+1. **Unlock the bootloader** with WPinternals.
+   WPinternals needs the phone's FFU firmware and the emergency loaders
+   registered first (Download tab). If they are missing, the unlock can quietly
+   roll back while still looking successful: check that WPinternals reports the
+   bootloader as **unlocked** before you go on.
+2. **Mass Storage Mode**: in WPinternals, choose *Switch to Mass Storage mode*.
+   The phone's partitions show up in Explorer as several drives.
+3. **Run `installer.bat`** (double-click; allow the admin prompt) and choose **1**.
+   It finds the phone's EFIESP drive on its own and asks before changing it.
+4. **Reboot into LK2ND** when the installer says so: hold Power about
+   10 seconds until the phone vibrates. Keep the cable in. The phone shows a
+   black screen with text.
+5. **Answer the prompts.** The installer then:
+   - starts TWRP over USB,
+   - backs up the phone's unique partitions to `backup-<date>` next to
+     `installer.bat`. **Keep this folder**; it cannot be downloaded again,
+   - asks before repartitioning, then replaces Windows with the Android layout,
+   - writes the recovery (TWRP) and the modem/audio firmware,
+   - copies your phone's modem calibration and MAC addresses,
+   - installs LineageOS and reboots.
+
+   Every step is checked; if one fails the installer stops and says why.
+   The first boot of LineageOS takes a few minutes.
+
+## If something goes wrong
+
+Run `installer.bat` again. It never repeats a finished step that would destroy
+data, so it is always safe to rerun.
+
+| What you see | Choose | What it does |
+|---|---|---|
+| The install stopped partway, or the PC lost the phone | **2** | Works out what is already done and continues |
+| Phone restarts in a loop, Windows logo or sad face | **4** | Phone in Mass Storage Mode (hold Power + Vol Down ~10 s, then hold Camera, pick *Mass Storage Mode*); puts the bootloader back |
+| No sound at all, no mobile signal, or no TWRP | **3** | Rewrites the modem firmware and recovery and redoes provisioning. Apps and files are kept |
+| "Could not find the phone's EFIESP drive" | | Phone not in Mass Storage Mode, or not unlocked yet (step 1) |
+| Stuck at "Waiting for the phone" while it shows LK2ND | | Windows has no driver for it. In Device Manager it should appear as *Android Bootloader Interface*; if it has a warning sign, install the [Google USB driver](https://developer.android.com/studio/run/win-usb) for it |
+| "LineageOS is not on the system partition" | **2** | Read the error on the phone's TWRP screen; usually a wrong or damaged zip |
+
+The log of every run is saved as `install_log_<date>.txt` next to the installer.
+Include it when you ask for help.
+
+## How it works
+
+| Step | Where | What |
+|---|---|---|
+| 1 | Windows, Mass Storage Mode | Copies `BCD`, `bootshim.efi`, `Stage2.efi`, the developer menu and LK2ND (`emmc_appsboot.mbn`) to EFIESP, so the phone boots LK2ND instead of Windows |
+| 2 | LK2ND | `fastboot boot twrp.img`. This is the only fastboot step |
+| 3 | TWRP | `cityman.sh backup`, then `cityman.sh partition`: deletes MainOS/Data/MMOS and creates the Android partitions |
+| 4 | TWRP | `cityman.sh flash recovery` and `flash modem`, `cityman.sh provision` |
+| 5 | TWRP | `adb sideload` of the LineageOS zip, checked with `cityman.sh verify-system` |
+
+`cityman.sh` runs on the phone and finds partitions by their exact GPT name.
+LK2ND is kept on both the `aboot` partition and EFIESP: `Stage2.efi` loads it
+from whichever FAT volume has it, so a damaged `aboot` no longer bricks the boot.
+
+Instead of the zip you can put `system.img`, `vendor.img` and `boot.img` in
+`DATA\`; they are then flashed with fastboot.
+
+## Other scripts
+
+- `rescue.ps1` / `rescue.sh`: write an image straight to a partition in Mass
+  Storage Mode (menu option 5).
+- `unpack_ffu_to_folder.py`: unpack a Lumia FFU firmware file.
+- `decompress_br.py`, `sdat2img.py`: turn `.new.dat.br` system images into raw images.
+- `create_modem_img_70mb.bat` / `create_modem_img.sh`: build `modem.img` from `modem_firmware\`.
+
+Based on [shadowofleaf96/installer-cityman](https://github.com/shadowofleaf96/installer-cityman).
