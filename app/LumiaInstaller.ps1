@@ -54,9 +54,9 @@ $IdleHint = @{
     'mass-storage' = 'Ready. Press Install.'
     'lk2nd' = 'Ready. Press Install to continue the installation.'
     'lk2nd-nodriver' = 'Windows has no driver for the phone in LK2ND. In Device Manager, update the driver of "Android" (or the device with a warning sign) to the Google USB driver, "Android Bootloader Interface".'
-    'twrp' = 'Ready. Press Install to continue the installation, or Repair if LineageOS is already installed.'
+    'twrp' = 'Ready. Press Install to continue the installation, or to update LineageOS (apps and files are kept). Repair fixes missing sound or mobile signal.'
     'sideload' = 'The phone is in ADB sideload mode. Tap Cancel on the phone, then press Install.'
-    'android' = 'LineageOS is running. If sound or mobile signal do not work, use Repair.'
+    'android' = 'LineageOS is running. To update it, choose the new LineageOS zip and press Install: your apps and files are kept. If sound or mobile signal do not work, use Repair.'
     'unauthorized' = 'Unlock the phone and tap Allow on the "Allow USB debugging?" message.'
 }
 
