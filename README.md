@@ -14,7 +14,25 @@ radio calibration, Wi-Fi/Bluetooth addresses) is backed up to your PC first.
   `installer.bat`**, not inside a folder. Keep only one LineageOS zip there.
 - [WPinternals](https://github.com/ReneLergner/WPinternals) to unlock the bootloader.
 
-## Install
+## Install with the app (recommended)
+
+Double-click **`Install LineageOS.cmd`**. A window opens that shows what mode the
+phone is in, finds the LineageOS zip next to it (or choose it, or drag it onto
+the window), and does the whole install when you press **Install**. It waits for
+the phone by itself and only stops for things it cannot do for you:
+
+- unlocking the bootloader and switching to Mass Storage Mode in WPinternals
+  (the window tells you when; see step 1 and 2 below),
+- holding the Power button to restart the phone,
+- two Yes/No questions before it changes the phone's boot files and before it
+  erases Windows.
+
+If the phone later has no sound or no mobile signal, press **Repair sound /
+signal**. If it no longer starts, press **Phone won't start** and follow the
+window. Your backup and a log of every run are next to the app
+(**Open backup folder**, **Open log**).
+
+## Install with the script
 
 1. **Unlock the bootloader** with WPinternals.
    WPinternals needs the phone's FFU firmware and the emergency loaders
@@ -42,7 +60,7 @@ radio calibration, Wi-Fi/Bluetooth addresses) is backed up to your PC first.
 
 ## If something goes wrong
 
-Run `installer.bat` again. It never repeats a finished step that would destroy
+Press Install again in the app, or run `installer.bat` again. Neither repeats a finished step that would destroy
 data, so it is always safe to rerun.
 
 | What you see | Choose | What it does |
