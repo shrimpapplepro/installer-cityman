@@ -100,8 +100,10 @@ set "use_sideload=0"
 set "sideload_zip="
 if not exist "%~dp0DATA\system.img" if not exist "%~dp0DATA\vendor.img" (
     for %%Z in ("%~dp0lineage-18.1*.zip") do (
-        set "use_sideload=1"
-        set "sideload_zip=%%Z"
+        if %%~zZ GTR 0 (
+            set "use_sideload=1"
+            set "sideload_zip=%%Z"
+        )
     )
 )
 

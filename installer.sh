@@ -78,7 +78,7 @@ sideload_zip=""
 
 if [ ! -f "${BASE_DIR}/DATA/system.img" ] && [ ! -f "${BASE_DIR}/DATA/vendor.img" ]; then
     for z in "${BASE_DIR}"/lineage-18.1*.zip; do
-        if [ -f "$z" ]; then
+        if [ -s "$z" ]; then
             use_sideload=1
             sideload_zip="$z"
             break
