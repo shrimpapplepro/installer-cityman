@@ -27,6 +27,11 @@ the phone by itself and only stops for things it cannot do for you:
 - two Yes/No questions before it changes the phone's boot files and before it
   erases Windows.
 
+**Updating** a phone that already runs LineageOS works the same way: choose the
+new zip and press **Install**. The app sees the Android partitions are already
+there, skips repartitioning, and installs the new zip over the old system, so
+apps and files are kept.
+
 If the phone later has no sound or no mobile signal, press **Repair sound /
 signal**. If it no longer starts, press **Phone won't start** and follow the
 window. Your backup and a log of every run are next to the app
